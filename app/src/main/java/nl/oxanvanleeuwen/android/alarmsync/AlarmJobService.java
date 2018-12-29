@@ -18,8 +18,6 @@ import org.json.JSONObject;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalUnit;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -38,17 +36,19 @@ public class AlarmJobService extends JobService {
             String date = "";
             if (nextAlarm != null) {
                 Instant instant = Instant.ofEpochMilli(nextAlarm.getTriggerTime());
-                time = DateTimeFormatter.ofPattern("HH:mm").withZone(ZoneId.systemDefault()).format(instant);
                 date = DateTimeFormatter.ofPattern("yyyy-MM-dd").withZone(ZoneId.systemDefault()).format(instant);
+                time = DateTimeFormatter.ofPattern("HH:mm:ss").withZone(ZoneId.systemDefault()).format(instant);
+            } else {
+                date = "1970-01-01";
+                time = "00:00:00";
             }
 
-            JSONObject attributes = new JSONObject();
-            attributes.put("date", date);
             JSONObject body = new JSONObject();
-            body.put("state", time);
-            body.put("attributes", attributes);
+            body.put("entity_id", SyncConfiguration.ENTITY_ID);
+            body.put("time", time);
+            body.put("date", date);
 
-            String url = String.format("%s/api/states/%s", SyncConfiguration.HOST, SyncConfiguration.SENSOR);
+            String url = String.format("%s/api/services/input_datetime/set_datetime", SyncConfiguration.HOST);
             JsonObjectRequest request = new JsonObjectRequest(url, body, new Response.Listener<JSONObject>() {
                 @Override
                 public void onResponse(JSONObject response) {
