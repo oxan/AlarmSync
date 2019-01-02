@@ -44,6 +44,8 @@ public class AlarmJobService extends JobService {
                 time = "00:00:00";
             }
 
+            Log.d(TAG, "Submitting next alarm at " + date + " " + time + " to API");
+
             final JSONObject body = new JSONObject();
             body.put("entity_id", SyncConfiguration.ENTITY_ID);
             body.put("time", time);
@@ -53,8 +55,7 @@ public class AlarmJobService extends JobService {
             StringRequest request = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
                 @Override
                 public void onResponse(String response) {
-                    Log.d(TAG, "Got response from API, job finished");
-                    Log.d(TAG, response);
+                    Log.d(TAG, "Job finished, got response from API: " + response);
                     jobFinished(jobParameters, false);
                 }
             }, new Response.ErrorListener() {
@@ -85,7 +86,7 @@ public class AlarmJobService extends JobService {
             RequestQueue queue = Volley.newRequestQueue(this);
             queue.add(request);
         } catch (Exception e) {
-            Log.e(TAG, "Failed to process job", e);
+            Log.e(TAG, "Failed to process job due to exception", e);
             jobFinished(jobParameters, false);
         }
 
