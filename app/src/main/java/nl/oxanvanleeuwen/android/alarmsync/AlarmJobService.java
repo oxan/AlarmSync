@@ -7,10 +7,11 @@ import android.app.job.JobService;
 import android.content.Context;
 import android.util.Log;
 
+import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
 import org.json.JSONObject;
@@ -32,8 +33,8 @@ public class AlarmJobService extends JobService {
             AlarmManager alarmManager = context.getSystemService(AlarmManager.class);
             AlarmManager.AlarmClockInfo nextAlarm = alarmManager.getNextAlarmClock();
 
-            String time = "";
-            String date = "";
+            String time;
+            String date;
             if (nextAlarm != null) {
                 Instant instant = Instant.ofEpochMilli(nextAlarm.getTriggerTime());
                 date = DateTimeFormatter.ofPattern("yyyy-MM-dd").withZone(ZoneId.systemDefault()).format(instant);
@@ -43,15 +44,17 @@ public class AlarmJobService extends JobService {
                 time = "00:00:00";
             }
 
-            JSONObject body = new JSONObject();
+            final JSONObject body = new JSONObject();
             body.put("entity_id", SyncConfiguration.ENTITY_ID);
             body.put("time", time);
             body.put("date", date);
 
             String url = String.format("%s/api/services/input_datetime/set_datetime", SyncConfiguration.HOST);
-            JsonObjectRequest request = new JsonObjectRequest(url, body, new Response.Listener<JSONObject>() {
+            StringRequest request = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
                 @Override
-                public void onResponse(JSONObject response) {
+                public void onResponse(String response) {
+                    Log.d(TAG, "Got response from API, job finished");
+                    Log.d(TAG, response);
                     jobFinished(jobParameters, false);
                 }
             }, new Response.ErrorListener() {
@@ -66,6 +69,16 @@ public class AlarmJobService extends JobService {
                     Map<String, String> params = new HashMap<>();
                     params.put("Authorization", String.format("Bearer %s", SyncConfiguration.TOKEN));
                     return params;
+                }
+
+                @Override
+                public String getBodyContentType() {
+                    return "application/json";
+                }
+
+                @Override
+                public byte[] getBody() {
+                    return body.toString().getBytes();
                 }
             };
 
