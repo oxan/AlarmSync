@@ -7,6 +7,7 @@ import android.app.job.JobService;
 import android.content.Context;
 import android.util.Log;
 
+import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -83,6 +84,7 @@ public class AlarmJobService extends JobService {
                 }
             };
 
+            request.setRetryPolicy(new DefaultRetryPolicy(30000, 3, 1));
             RequestQueue queue = Volley.newRequestQueue(this);
             queue.add(request);
         } catch (Exception e) {
