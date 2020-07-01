@@ -48,11 +48,11 @@ public class AlarmJobService extends JobService {
             Log.d(TAG, "Submitting next alarm at " + date + " " + time + " to API");
 
             final JSONObject body = new JSONObject();
-            body.put("entity_id", SyncConfiguration.ENTITY_ID);
+            body.put("entity_id", BuildConfig.API_ENTITY_ID);
             body.put("time", time);
             body.put("date", date);
 
-            String url = String.format("%s/api/services/input_datetime/set_datetime", SyncConfiguration.HOST);
+            String url = String.format("%s/api/services/input_datetime/set_datetime", BuildConfig.API_HOST);
             StringRequest request = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
                 @Override
                 public void onResponse(String response) {
@@ -69,7 +69,7 @@ public class AlarmJobService extends JobService {
                 @Override
                 public Map<String, String> getHeaders() {
                     Map<String, String> params = new HashMap<>();
-                    params.put("Authorization", String.format("Bearer %s", SyncConfiguration.TOKEN));
+                    params.put("Authorization", String.format("Bearer %s", BuildConfig.API_TOKEN));
                     return params;
                 }
 

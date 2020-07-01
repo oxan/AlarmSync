@@ -1,5 +1,9 @@
 apply plugin: 'com.android.application'
 
+def buildPropertiesFile = rootProject.file("build.properties")
+def buildProperties = new Properties()
+buildProperties.load(new FileInputStream(buildPropertiesFile))
+
 android {
 	compileSdkVersion 26
 	defaultConfig {
@@ -8,6 +12,10 @@ android {
 		targetSdkVersion 26
 		versionCode 1
 		versionName "1.0"
+
+		buildConfigField("String", "API_HOST", buildProperties['apiHost'])
+		buildConfigField("String", "API_TOKEN", buildProperties['apiToken'])
+		buildConfigField("String", "API_ENTITY_ID", buildProperties['apiEntityId'])
 	}
 	buildTypes {
 		release {
